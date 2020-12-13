@@ -1,6 +1,6 @@
 <template>
 <div>
-  Spu管理
+  平台属性
 </div>
 </template>
 

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" icon="el-icon-plus" @click="visible = true"
-      >添加</el-button
-    >
+    <el-button type="primary" icon="el-icon-plus" @click="add">添加</el-button>
     <!-- 点击添加品牌数据对话框 -->
     <el-dialog title="添加品牌" :visible.sync="visible" width="50%">
       <!-- form表单 -->
@@ -136,34 +134,54 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate(async (valid) => {
         if (valid) {
-          const isUpdateOrAdd = isUpdate ? "updateTrademark" : "addTrademark";
-          const res = await this.$API.trademark[isUpdateOrAdd](
-            this.trademarkForm
-          );
+          const { trademarkForm } = this;
+          let res;
+          if (trademarkForm.id) {
+            res = await this.$API.trademark.updateTrademark(this.trademarkForm);
+            const getrow = this.trademarkList.find(
+              (trade) => trade.id === trademarkForm.id
+            );
+            if (
+              getrow.tmName === trademarkForm.tmName &&
+              getrow.logoUrl === trademarkForm.logoUrl
+            ) {
+              this.$message.warning("请修改数据后上传");
+              return;
+            }
+          } else {
+            res = await this.$API.trademark.addTrademark(this.trademarkForm);
+          }
           if (res.code === 200) {
             this.visible = false;
-            this.isUpdate = false;
             this.$message.success("加入成功~~~");
             this.getTrademarkList(this.page, this.limit);
           } else {
-            this.isUpdate = false;
             this.$message.error("请重新上传~~");
           }
         }
       });
     },
+    // 点击添加按钮事件
+    add() {
+      this.visible = true;
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate();
+      this.trademarkForm = {
+        tmName: "",
+        logoUrl: "",
+      };
+    },
     //更新品牌数据
-    updateTrade(formName, data) {
-      this.trademarkForm.logoUrl = data.logoUrl;
-      this.trademarkForm.tmName = data.tmName;
-      this.isUpdate = true;
-      this.submitForm(formName)
+    updateTrade(formName, row) {
+      this.visible = true;
+      this.$refs.trademarkForm && this.$refs.trademarkForm.clearValidate();
+      this.trademarkForm = { ...row };
     },
     // 删除品牌数据
     async delTrademark(id) {
       if (confirm("是否确定删除此数据？")) {
         try {
           await this.$API.trademark.delTrademark(id);
+          this.$message.success("删除成功");
           this.getTrademarkList(this.page, this.limit);
           return;
         } catch (err) {
@@ -197,6 +215,26 @@ export default {
   mounted() {
     //   获取全部数据
     this.getTrademarkList(this.page, this.limit);
+    let that = this;
+    // setInterval(() => {
+    //     that.$API.trademark.addTrademark(
+    //           {tmName:'金亮你真骚，骚的不要不要的',logoUrl:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3302711460,3578762839&fm=26&gp=0.jpg'}
+    //         );
+    // }, 5000);
+
+    // setInterval(() => {
+    //     that.$API.trademark.addTrademark(
+    //           {tmName:'金亮你真骚，骚的不要不要的',logoUrl:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3302711460,3578762839&fm=26&gp=0.jpg'}
+    //         );
+    // }, 5000);
+
+    // setInterval(() => {
+    //     console.log(111)
+    //   for(let i =0 ; i++ ; i<500){
+    //       console.log(111)
+    //       this.$API.trademark.delTrademark(i)
+    //   }
+    // }, 1000);
   },
 };
 </script>
