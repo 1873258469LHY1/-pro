@@ -222,19 +222,6 @@ export default {
     //         );
     // }, 5000);
 
-    // setInterval(() => {
-    //     that.$API.trademark.addTrademark(
-    //           {tmName:'金亮你真骚，骚的不要不要的',logoUrl:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3302711460,3578762839&fm=26&gp=0.jpg'}
-    //         );
-    // }, 5000);
-
-    // setInterval(() => {
-    //     console.log(111)
-    //   for(let i =0 ; i++ ; i<500){
-    //       console.log(111)
-    //       this.$API.trademark.delTrademark(i)
-    //   }
-    // }, 1000);
   },
 };
 </script>
@@ -243,11 +230,6 @@ export default {
     margin-top: 20px
 .trademark-img
     width: 120px
->>>.trademark-pagination
-    text-align: right
-    .el-pagination__jump
-        margin-right: 250px
-
 >>>.avatar-uploader .el-upload
     border: 1px dashed #d9d9d9
     border-radius: 6px

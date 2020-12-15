@@ -1,12 +1,18 @@
 
 <template>
   <div>
-    <Category @selfChange="getAttrsList" :disabled="!isShow" />
+    <Category :disabled="isShow" />
 
     <!-- 初始页面 -->
-    <el-card v-show="!isShow">
-      <el-button type="primary" icon="el-icon-plus">添加属性</el-button>
-      <el-table :data="attrsList" border style="width: 100%">
+    <el-card v-show="!isShow" style="margin-top:20px">
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        :disabled="!isShowAddBtn"
+        @click="addAttr"
+        >添加属性</el-button
+      >
+      <el-table :data="attrsList" border style="width: 100%;margin-top:20px">
         <el-table-column align="center" type="index" label="序号" width="80">
         </el-table-column>
         <el-table-column prop="attrName" label="属性名称" width="180">
@@ -39,14 +45,18 @@
     </el-card>
 
     <!-- 页面切换 -->
-    <el-card v-show="isShow">
+    <el-card v-show="isShow"  style="margin-top:20px">
       <el-form :model="attr" inline>
         <el-form-item label="属性名" prop="attrName">
           <el-input
             v-model="attr.attrName"
             style="margin-bottom: 20px"
           ></el-input>
-          <el-button type="primary" icon="el-icon-plus" @click="addAttrValue"
+          <el-button
+            type="primary"
+            icon="el-icon-plus"
+            @click="addAttrValue"
+            :disabled="!attr.attrName"
             >添加属性值</el-button
           >
         </el-form-item>
@@ -55,7 +65,7 @@
       <el-table
         :data="attr.attrValueList"
         border
-        style="width: 100%; margin-top: 20px"
+        style="width: 100%; margin-bottom: 20px"
       >
         <el-table-column align="center" type="index" label="序号" width="80">
         </el-table-column>
@@ -87,15 +97,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-button type="primary">保存</el-button>
-      <el-button>取消</el-button>
+      <el-button type="primary" @click="save">保存</el-button>
+      <el-button @click="isShow = true">取消</el-button>
     </el-card>
   </div>
 </template>
 
 
 <script>
-import Category from "./category";
+import Category from "@/components/Category";
 export default {
   name: "AttrList",
   data() {
@@ -105,20 +115,54 @@ export default {
         attrName: "",
         attrValueList: [],
       },
+      categoryId: {
+        // 代表三个分类id数据
+        category1Id: "",
+        category2Id: "",
+        category3Id: "",
+      },
       isShow: false,
-      flag: 0,
+      isShowAddBtn: false,
     };
   },
   components: {
     Category,
   },
   methods: {
+    //   切换时清除属性列表
+    clearAttrList(){
+        this.attrsList = []
+    },
+    //   保存数据
+    async save() {
+      const { attr } = this;
+      if (!attr.id) {
+        attr.categoryId = this.categoryId.category3Id;
+        attr.categoryLevel = 3;
+      }
+      const res = await this.$API.attrs.saveAttrs(attr);
+      if (res.code === 200) {
+        this.isShow = false;
+        this.getAttrsList(this.categoryId);
+      }else{
+          this.$message.error(result.message);
+      }
+    },
+    //   点击添加按钮事件
+    addAttr() {
+      this.isShow = true;
+      this.attr.attrName = "";
+      this.attr.id = "";
+      this.attr.attrValueList = [];
+    },
+    //   添加属性值
     addAttrValue() {
       this.attr.attrValueList.push({ edit: true });
       this.$nextTick(() => {
         this.$refs.input.focus();
       });
     },
+    // 聚焦
     edit(row) {
       this.$set(row, "edit", true);
       this.$nextTick(() => {
@@ -142,11 +186,20 @@ export default {
       const res = await this.$API.attrs.getAttrsList(categoryId);
       if (res.code === 200) {
         this.attrsList = res.data;
+        this.categoryId = categoryId
+        this.isShowAddBtn = true;
       } else {
         this.$message.error(res.message);
       }
     },
   },
-  mounted() {},
+  mounted() {
+      this.$bus.$on('selfChange',this.getAttrsList)
+      this.$bus.$on('slefClear',this.clearAttrList)
+  },
+   beforeDestroy(){
+      this.$bus.$off('selfChange',this.getAttrsList)
+      this.$bus.$off('slefClear',this.clearAttrList)
+  }
 };
 </script>

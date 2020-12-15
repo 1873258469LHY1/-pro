@@ -40,6 +40,19 @@ export default {
       method: 'GET',
     })
   },
+  /*
+  保存属性值数据
+  */
+
+  saveAttrs(attr) {
+    return request({
+      url: `${api_name}/saveAttrInfo`,
+      method: 'POST',
+      body:{
+          attr
+      }
+    })
+  },
   
 
 }

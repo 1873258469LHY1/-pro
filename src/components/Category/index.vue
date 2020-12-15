@@ -7,6 +7,7 @@
             v-model="categoryId.category1Id"
             placeholder="请选择"
             @change="get2List"
+            :disabled='disabled'
           >
             <el-option
               :label="c1.name"
@@ -21,6 +22,7 @@
             v-model="categoryId.category2Id"
             placeholder="请选择"
             @change="get3List"
+            :disabled='disabled'
           >
             <el-option
               :label="c2.name"
@@ -35,6 +37,7 @@
             v-model="categoryId.category3Id"
             placeholder="请选择"
             @change="getAttrs"
+            :disabled='disabled'
           >
             <el-option
               :label="c3.name"
@@ -52,6 +55,7 @@
 <script>
 export default {
   name: "Category",
+  props:['disabled'],
   data() {
     return {
       categoryId: {
@@ -77,6 +81,7 @@ export default {
       } else {
         this.$message.error(res.message);
       }
+      this.$bus.$emit('selfClear')
     },
     // 获取三级数据
     async get3List(category2Id) {
@@ -88,13 +93,14 @@ export default {
       } else {
         this.$message.error(res.message);
       }
+      this.$bus.$emit('selfClear')
     },
     getAttrs(category3Id) { 
       const categoryId = {
         ...this.categoryId,
         category3Id,
       };
-      this.$emit("selfChange", categoryId);
+      this.$bus.$emit("selfChange", categoryId);
     },
   },
 
@@ -107,6 +113,7 @@ export default {
       this.$message.error(res.message);
     }
   },
+ 
 };
 </script>
 
