@@ -80,7 +80,7 @@
       :page-size.sync="limit"
       :page-sizes="[3, 6, 9]"
       :pager-count="7"
-      layout="prev, pager, next,jumper,sizes,total"
+      layout="prev, pager, next, jumper, sizes, total"
       :total="total"
     >
     </el-pagination>
@@ -182,6 +182,10 @@ export default {
         try {
           await this.$API.trademark.delTrademark(id);
           this.$message.success("删除成功");
+          //判断当本页数据删除完时应该跳转到上一页请求数据
+          this.page =
+            this.trademarkList.length === 1 ? this.page - 1 : this.page;
+          console.log(this.page, this.trademarkList.length);
           this.getTrademarkList(this.page, this.limit);
           return;
         } catch (err) {
@@ -196,9 +200,9 @@ export default {
       if (res.code === 200) {
         // this.$message.success("请求成功~");
         this.trademarkList = res.data.records;
-        this.limit = res.data.size;
+        // this.limit = res.data.size;
         this.total = res.data.total;
-        this.page = res.data.current;
+        // this.page = res.data.current;
       } else {
         this.$message.error("请求数据失败~");
       }
@@ -221,7 +225,6 @@ export default {
     //           {tmName:'金亮你真骚，骚的不要不要的',logoUrl:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3302711460,3578762839&fm=26&gp=0.jpg'}
     //         );
     // }, 5000);
-
   },
 };
 </script>

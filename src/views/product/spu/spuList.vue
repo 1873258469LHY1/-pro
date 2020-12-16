@@ -1,8 +1,8 @@
 <template>
-  <el-card style="margin-top: 20px">
+  <el-card style="margin-top: 20px" v-loading="loading">
     <el-button type="primary" icon="el-icon-plus">添加SPU</el-button>
     <el-table
-      :data="spuList.records"
+      :data="spuList"
       border
       style="width: 100%; margin-top: 20px"
     >
@@ -35,8 +35,7 @@
       :current-page.sync="page"
       :page-size.sync="limit"
       :page-sizes="[3, 6, 9]"
-      :pager-count="7"
-      layout="prev, pager, next,jumper,sizes,total"
+      layout="prev, pager, next , jumper , sizes , total"
       :total="total"
     >
     </el-pagination>
@@ -52,7 +51,7 @@ export default {
       page: 1,
       limit: 3,
       total: 0,
-      current: 1,
+      loading: false,
       categoryId: {
         category1Id: "",
         category2Id: "",
@@ -63,6 +62,7 @@ export default {
   methods: {
     //   获取数据列表
     async getSpuList(page, limit) {
+      this.loading = true;
       const { category3Id } = this.categoryId;
       const res = await this.$API.spu.getPageList({
         category3Id,
@@ -70,11 +70,12 @@ export default {
         limit,
       });
       if (res.code === 200) {
-        this.spuList = res.data;
-        this.total = res.total;
+        this.spuList = res.data.records;
+        this.total = res.data.total;
       } else {
         this.$message.error(res.message);
       }
+      this.loading = false;
     },
     // 三级改变时触发
     handleChange(categoryId) {
